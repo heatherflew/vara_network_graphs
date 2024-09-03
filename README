@@ -1,0 +1,60 @@
+Several things need to be changed in order to get working network graphs:
+
+I run things as user 'heather', with group access to www-data. I keep my scripts in ~/heather/vara_network_scripts, and the html files (and log files) in /var/html/hawaiiares_page/heather/vara_github. Note that I currently don't remove old log files / old network graphs. You may end up filling your disk if you don't check periodically.
+
+Step 1: Configure Gateways to send syslog info to your computer, and verify that it is getting there.
+
+Have your system / vara gateways configured so that the syslog messages are sent to your machine, and your machine must be configured to accept remote syslogs.  For the gateways, have them named like V-KH6ABC or H-KH6ABC - this will allow the perl scripts to filter into HF or VHF. 
+
+The relavent settings in VARA:
+
+[X] SysLog   <-- tells it to use syslog
+
+SysLog Host  : (your web server name) 
+UDP Port     : (your syslog port for your webserver, usually 514)
+Station Name : H-KH6ABC (put your call sign here, and put H or V depending on HF or VHF).
+
+You will have to configure your system to accept remote syslogs. There are a lot of ways to do this, and beyond the scope of this. 
+
+Step 2: edit a few parameters in the main script
+
+Edit vara_network_scripts/sava_vara_logs.sh, there are 3 lines that will need to be edited to pick up the correct directories:
+
+### You will have to edit these parameters ###
+syslog=/var/log/syslog
+varanetworkscriptsdir=/home/heather/vara_network_scripts
+varanetworkhtmldir=/var/www/html/hawaiiares_page/heather/vara_github
+###
+
+Depending how you configure your system, you may dump the vara syslog messages to another file. I don't, so /var/log/syslog works for me.
+Edit varanetworkscriptsdir and varanetworkhtml dir for something appropriate for your system.
+
+Step 3: test and start cron jobs
+
+Try running the scripts before doing the cron job, editing in the path to the sava_vara_log.sh script and where you want the cronlogs to go:
+
+/usr/bin/bash /path_to_this_script/save_vara_log.sh > /where_you_want_the_cron_logs_to_go/cronlog.txt
+
+If it works, add it into your crontab: 
+
+# m h  dom mon dow   command
+*/10 * * * * /usr/bin/bash /path_to_this_script/save_vara_log.sh > /where_you_want_the_cron_logs_to_go/cronlog.txt
+
+Step 4: Modify the html so it's not defaulting to hawaii.
+
+Edit the html to do what you want. Included is the core set of html files as seen on https://hawaiiares.net/heather/vara.  I request that you leave the link (on the network graph) to link to my github page for this.  The core html files show how to use iframes to load the network graphs - you can, if you like just use an iframe to load just the network graphs (no text other than last updated and link to github):
+
+Here is how iframe is used on the core pages:
+
+vara_network_html/varafmconnected.php:<iframe src="varafmconnected_simple.php" style="border:none;" width=640px height=460px></iframe>
+vara_network_html/varafmconnected5.php:<iframe src="varafmconnected5_simple.php" style="border:none;" width=640px height=460px></iframe>
+vara_network_html/varafmheard.php:<iframe src="varafmheard_simple.php" style="border:none;" width=640px height=460px></iframe>
+vara_network_html/varafmheard5.php:<iframe src="varafmheard5_simple.php" style="border:none;" width=640px height=460px></iframe>
+vara_network_html/varahfconnected.php:<iframe src="varahfconnected_simple.php" style="border:none;" width=640px height=460px></iframe>
+vara_network_html/varahfconnected5.php:<iframe src="varahfconnected5_simple.php" style="border:none;" width=640px height=460px></iframe>
+
+Note that if you wish to change the size of the graphs, you can do so, but will have to edit the width / height in the iframe as well as the *simple.php pages.
+
+happy hacking!
+
+
